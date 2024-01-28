@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Price Chart</title>
+    <!-- Chart.js dosyasını dahil et -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Bitcoin Price Chart:</h1>
+    <!-- Grafik için bir container div ve canvas elementi -->
+    <div style="height: 400px; width: 600px;">
+        <canvas id="bitcoinChart" width="400" height="200"></canvas>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bitcoin fiyat verisi
+            var bitcoinPriceData = {{ bitcoin_price_data|safe }};
+
+            // Canvas elementini seç
+            var ctx = document.getElementById('bitcoinChart').getContext('2d');
+
+            // Bitcoin fiyatlarını içeren çizgi grafik oluştur
+            var bitcoinChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: bitcoinPriceData.labels,
+                    datasets: [{
+                        label: 'Bitcoin Price (USD)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        data: bitcoinPriceData.prices,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                },
+            });
+        });
+    </script>
+</body>
+</html>
