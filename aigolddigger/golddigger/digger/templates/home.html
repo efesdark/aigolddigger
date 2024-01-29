@@ -1,13 +1,47 @@
+<!-- templates/home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <title>Bitcoin Real-time Value and Chart</title>
+
+    <!-- Plotly CDN ekleyin -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <!-- Anlık güncelleme için JavaScript kodları -->
+    <script>
+        // Sayfa yüklendiğinde bir kez çalışacak olan kod
+        document.addEventListener("DOMContentLoaded", function () {
+            // Anlık güncellemeler için bir fonksiyon tanımlayın
+            function updateBitcoinChart() {
+                // AJAX isteği gönderin
+                $.ajax({
+                    url: '/get_bitcoin_price/',  // Django views'daki uygun URL'yi belirtin
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        // Grafik verisini güncelleyin
+                        Plotly.update('bitcoin-chart', {y: [[data.price]]});
+                    },
+                    error: function () {
+                        console.error('Anlık veri alınamadı.');
+                    }
+                });
+            }
+
+            // Belirli bir süre aralığıyla anlık güncellemeleri tetikleyin (örneğin, 5 saniyede bir)
+            setInterval(updateBitcoinChart, 5000);
+        });
+    </script>
 </head>
 <body>
-    <h1>Welcome to My Django App!</h1>
-    <p>{{ data }}</p>
+    <h1>Bitcoin Real-time Value and Chart</h1>
+    
+    <div id="bitcoin-chart"></div>
+
+    <p id="bitcoin-price">Bitcoin Anlık Değeri: <span id="bitcoin-value">-</span> USDT</p>
 </body>
 </html>
