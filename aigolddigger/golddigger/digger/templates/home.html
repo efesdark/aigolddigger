@@ -1,47 +1,116 @@
-<!-- templates/home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin Real-time Value and Chart</title>
+    <title>Bitcoin Mum Grafiği</title>
 
-    <!-- Plotly CDN ekleyin -->
+    <!-- Plotly.js Grafik Kütüphanesi CDN -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
-    <!-- Anlık güncelleme için JavaScript kodları -->
-    <script>
-        // Sayfa yüklendiğinde bir kez çalışacak olan kod
-        document.addEventListener("DOMContentLoaded", function () {
-            // Anlık güncellemeler için bir fonksiyon tanımlayın
-            function updateBitcoinChart() {
-                // AJAX isteği gönderin
-                $.ajax({
-                    url: '/get_bitcoin_price/',  // Django views'daki uygun URL'yi belirtin
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function (data) {
-                        // Grafik verisini güncelleyin
-                        Plotly.update('bitcoin-chart', {y: [[data.price]]});
-                    },
-                    error: function () {
-                        console.error('Anlık veri alınamadı.');
-                    }
-                });
-            }
+    <!-- Stil için basit bir CSS -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
 
-            // Belirli bir süre aralığıyla anlık güncellemeleri tetikleyin (örneğin, 5 saniyede bir)
-            setInterval(updateBitcoinChart, 5000);
-        });
-    </script>
+        #bitcoin-chart {
+            width: 100%;
+            height: 500px;
+        }
+
+        #update-interval {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Bitcoin Real-time Value and Chart</h1>
-    
-    <div id="bitcoin-chart"></div>
 
-    <p id="bitcoin-price">Bitcoin Anlık Değeri: <span id="bitcoin-value">-</span> USDT</p>
+<!-- Plotly.js grafik container'ı -->
+<div id="bitcoin-chart"></div>
+
+<!-- Güncelleme süresi seçim kutusu -->
+<div id="update-interval">
+    <label for="update-interval-select">Güncelleme Süresi:</label>
+    <select id="update-interval-select">
+        <option value="1000">1 Saniye</option>
+        <option value="5000">5 Saniye</option>
+        <option value="10000">10 Saniye</option>
+        <option value="60000">1 Dakika</option>
+    </select>
+</div>
+
+<!-- JavaScript dosyasını yükle -->
+<script>// Başlangıç fiyatı
+    let bitcoinPrices = [10000];
+    let bitcoinTimestamps = [new Date()];
+    
+    // Plotly.js grafik oluşturun
+    const trace = {
+        x: bitcoinTimestamps,
+        close: bitcoinPrices,
+        high: bitcoinPrices,
+        low: bitcoinPrices,
+        open: bitcoinPrices,
+        type: 'candlestick',
+        xaxis: 'x',
+        yaxis: 'y'
+    };
+    
+    const layout = {
+        title: 'Bitcoin Mum Grafiği',
+        xaxis: {
+            autorange: true,
+            rangeslider: { visible: false },
+            type: 'date'
+        },
+        yaxis: {
+            autorange: true,
+            type: 'linear'
+        }
+    };
+    
+    // Güncelleme süresi seçim kutusu
+    const updateIntervalSelect = document.getElementById('update-interval-select');
+    let updateInterval = parseInt(updateIntervalSelect.value);
+    
+    Plotly.newPlot('bitcoin-chart', [trace], layout);
+    
+    // Her saniyede bir yeni veri çek
+    setInterval(function() {
+        fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
+            .then(response => response.json())
+            .then(data => {
+                const newPrice = parseFloat(data.price);
+                bitcoinPrices.push(newPrice);
+                bitcoinTimestamps.push(new Date());
+    
+                // Sadece son 50 veriyi göster
+                if (bitcoinPrices.length > 50) {
+                    bitcoinPrices = bitcoinPrices.slice(bitcoinPrices.length - 50);
+                    bitcoinTimestamps = bitcoinTimestamps.slice(bitcoinTimestamps.length - 50);
+                }
+    
+                // Grafik verisini güncelle
+                Plotly.update('bitcoin-chart', { x: [bitcoinTimestamps], close: [bitcoinPrices], high: [bitcoinPrices], low: [bitcoinPrices], open: [bitcoinPrices] });
+            })
+            .catch(error => {
+                console.error('Anlık veri alınamadı:', error);
+            });
+    }, updateInterval);
+    
+    // Seçim kutusundaki değişiklikleri dinle
+    updateIntervalSelect.addEventListener('change', function() {
+        updateInterval = parseInt(updateIntervalSelect.value);
+    
+        // Güncelleme süresini değiştir
+        clearInterval(intervalId);
+        intervalId = setInterval(updateBitcoinChart, updateInterval);
+    });
+    </script>
+
 </body>
 </html>
