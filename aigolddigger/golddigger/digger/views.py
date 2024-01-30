@@ -5,6 +5,9 @@ import ccxt
 def home(request):
     return render(request, 'home.html')
 
+def chart(request):
+    return render(request, 'chart.html') 
+
 def get_bitcoin_price(request):
     # Binance API'ye istek atmak için ccxt kütüphanesini kullanalım
     binance = ccxt.binance()

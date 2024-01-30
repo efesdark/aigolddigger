@@ -45,71 +45,64 @@
 
 <!-- JavaScript dosyasını yükle -->
 <script>// Başlangıç fiyatı
-    let bitcoinPrices = [10000];
-    let bitcoinTimestamps = [new Date()];
-    
-    // Plotly.js grafik oluşturun
-    const trace = {
-        x: bitcoinTimestamps,
-        close: bitcoinPrices,
-        high: bitcoinPrices,
-        low: bitcoinPrices,
-        open: bitcoinPrices,
-        type: 'candlestick',
-        xaxis: 'x',
-        yaxis: 'y'
-    };
-    
-    const layout = {
-        title: 'Bitcoin Mum Grafiği',
-        xaxis: {
-            autorange: true,
-            rangeslider: { visible: false },
-            type: 'date'
-        },
-        yaxis: {
-            autorange: true,
-            type: 'linear'
-        }
-    };
-    
-    // Güncelleme süresi seçim kutusu
-    const updateIntervalSelect = document.getElementById('update-interval-select');
-    let updateInterval = parseInt(updateIntervalSelect.value);
-    
-    Plotly.newPlot('bitcoin-chart', [trace], layout);
-    
-    // Her saniyede bir yeni veri çek
-    setInterval(function() {
-        fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
-            .then(response => response.json())
-            .then(data => {
-                const newPrice = parseFloat(data.price);
-                bitcoinPrices.push(newPrice);
-                bitcoinTimestamps.push(new Date());
-    
-                // Sadece son 50 veriyi göster
-                if (bitcoinPrices.length > 50) {
-                    bitcoinPrices = bitcoinPrices.slice(bitcoinPrices.length - 50);
-                    bitcoinTimestamps = bitcoinTimestamps.slice(bitcoinTimestamps.length - 50);
-                }
-    
-                // Grafik verisini güncelle
-                Plotly.update('bitcoin-chart', { x: [bitcoinTimestamps], close: [bitcoinPrices], high: [bitcoinPrices], low: [bitcoinPrices], open: [bitcoinPrices] });
-            })
-            .catch(error => {
-                console.error('Anlık veri alınamadı:', error);
-            });
-    }, updateInterval);
-    
-    // Seçim kutusundaki değişiklikleri dinle
-    updateIntervalSelect.addEventListener('change', function() {
-        updateInterval = parseInt(updateIntervalSelect.value);
-    
-        // Güncelleme süresini değiştir
-        clearInterval(intervalId);
-        intervalId = setInterval(updateBitcoinChart, updateInterval);
-    });
+    let prices = []; // Fiyat verilerini tutacak dizi
+let timestamps = []; // Zaman damgalarını tutacak dizi
+let updateInterval = 1000; // Güncelleme aralığı (1 saniye)
+
+// Grafik oluşturulması için gerekli ayarlar
+const trace = {
+    x: timestamps,
+    close: prices,
+    high: prices,
+    low: prices,
+    open: prices,
+    type: 'candlestick',
+    xaxis: 'x',
+    yaxis: 'y'
+};
+
+const layout = {
+    title: 'Bitcoin Mum Grafiği',
+    xaxis: {
+        autorange: true,
+        rangeslider: { visible: false },
+        type: 'date'
+    },
+    yaxis: {
+        autorange: true,
+        type: 'linear'
+    }
+};
+
+// Plotly grafik oluştur
+Plotly.newPlot('bitcoin-chart', [trace], layout);
+
+// Güncelleme süresine göre veri çekme ve grafik güncelleme işlemleri
+function updateBitcoinChart() {
+    fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
+        .then(response => response.json())
+        .then(data => {
+            const newPrice = parseFloat(data.price);
+            prices.push(newPrice);
+            timestamps.push(new Date());
+
+            // Sadece son 50 veriyi göster
+            if (prices.length > 50) {
+                prices = prices.slice(prices.length - 50);
+                timestamps = timestamps.slice(timestamps.length - 50);
+            }
+
+            // Grafik verisini güncelle
+            Plotly.update('bitcoin-chart', { x: [timestamps], close: [prices], high: [prices], low: [prices], open: [prices] });
+        })
+        .catch(error => {
+            console.error('Anlık veri alınamadı:', error);
+        });
+}
+
+// Belirli aralıklarla grafik güncelleme işlemini tekrarla
+setInterval(updateBitcoinChart, updateInterval);
+
     </script>
 
 </body>
