@@ -1,0 +1,40 @@
+<!-- digger/bitcoin_chart.html -->
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'bootstrap-5.3.2-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap">
+    <title>Golddiger</title>
+    <style>
+        p {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.6em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Bitcoin Information</h1>
+                <p>Currentcoin: Bitcoin</p>
+                <p>Price: ${{ current_price }}</p>
+                <p>24h Change: {{ change_percentage }}%</p>
+                <p>24h High: ${{ high_price }}</p>
+                <p>24h Volume: {{ volume }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="{% static 'bootstrap-5.3.2-dist/js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
