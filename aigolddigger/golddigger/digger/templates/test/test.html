@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+        <label for="username" class="form-label">Username</label>
+        <input id="username" class="form-control" type="text"><br>
+        <button id="button">test<button>
+        <p id="log"><p>
+    <script>
+
+    const chatSocket = new WebSocket('ws://' + window.location.host + '/ws/digger/');
+
+chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    const message = data['message'];
+    console.log(data.message);
+    document.querrySelector('#log').innerhtml += (data.message + '<br>');
+    // Handle incoming message
+};
+
+chatSocket.onclose = function(e) {
+    console.error('Chat socket closed unexpectedly');
+};
+
+document.querrySelector('#button').onclick = function(e){
+    const username= document.querrySelector('#username');
+    const message= username.value + 'clicked the button';
+    chatSocket.send(JSON.stringify({'message':message}));
+};
+
+// Send message to server
+function sendMessage(message) {
+    chatSocket.send(JSON.stringify({
+        'message': message
+    }));
+}
+            
+      
+
+        </script>
+    </body>
+    
+</html>

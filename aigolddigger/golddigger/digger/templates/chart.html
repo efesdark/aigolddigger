@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,11 +11,42 @@
     <link rel="stylesheet" href="{% static 'bootstrap-5.3.2-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap">
     <title>Golddiger</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         p {
         font-family: 'Open Sans', sans-serif;
         font-size: 0.6em;
     }
+
+        .PriceTable{
+        color green;
+        border: 1px solid red;
+    }
+
+        .PriceTable th
+        {
+            color: gray; /* Metin rengi */
+            font-size: 0.5rem;
+            /* tablo header'ı */ }
+
+        .PriceTable td {
+        color: green; /* Metin rengi */
+        font-size: 0.5rem;
+       
+        /* tablo satırları*/ }
+
+       
+        .CandleGraph{
+        color green;
+        border: 1px solid red;
+
+    }
+
+        .SearchCoin{
+        color green;
+        border: 1px solid red;
+
+        }
 </style>
 </head>
 <body>
@@ -54,6 +85,7 @@
         <!-- Ana İçerik Alanı -->
         <div class="col-md-1">
             <p>Currentcoin</p>
+            <p>{{ current_coin }}</p>
         </div>
         <div class="col-md-1">
             <p>Price</p>
@@ -82,14 +114,22 @@
         <div class="col-md-1">
          
         </div>
-        <div class="col-md-2">
+        <div class="col-md-2 ">
+            <div class="SearchCoin">
             <p>Search coin</p>
+            
+            </div>
+        
+        
         </div>
+        
         <!-- Sağ Kenarlık -->
         <div class="col-md-1">
             
         </div>
     </div>
+
+
     <div class="row">
         <!-- Sol Kenarlık -->
         <div class="col-md-1">
@@ -98,13 +138,40 @@
 
         <!-- Ana İçerik Alanı -->
         <div class="col-md-2">
-            <p>Price table</p>
+            <div class="PriceTable">
+           
+            
+                <table class="table-sm">
+                    <thead>
+                        <tr>
+                            <th scope="col">Price</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trade in trades|slice:":15" %}
+                            <tr>
+                                <td>${{ trade.price }}</td>
+                                <td>{{ trade.qty }}</td>
+                                <td>${{ trade.price|floatformat:2|intmultiply:trade.qty }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+        </div>
+            
+            
         </div>
         <div class="col-md-6">
-            <p>Candlegraph</p>
+            <div class="CandleGraph">
+            
+            <div id="bitcoin-chart"></div>
+            <div>
         </div>
+
         <div class="col-md-2">
-            <p>Search coin</p>
+           
         </div>
         <!-- Sağ Kenarlık -->
         <div class="col-md-1">
@@ -116,15 +183,73 @@
     <div class="row">
         <!-- Alt Sıradaki İçerik -->
         <div class="col-md-12">
-            <p>Alt sıradaki içerik buraya gelecek...</p>
+            <p>Real Time Data</p>
         </div>
     </div>
+    
 </div>
 <!-- Your content goes here -->
 
 <!-- Bootstrap JS and dependencies -->
 <script src="{% static 'bootstrap-5.3.2-dist/js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js' %}"></script>
+<script>// Başlangıç fiyatı
+    let prices = []; // Fiyat verilerini tutacak dizi
+let timestamps = []; // Zaman damgalarını tutacak dizi
+let updateInterval = 1000; // Güncelleme aralığı (1 saniye)
 
+// Grafik oluşturulması için gerekli ayarlar
+const trace = {
+    x: timestamps,
+    close: prices,
+    high: prices,
+    low: prices,
+    open: prices,
+    type: 'candlestick',
+    xaxis: 'x',
+    yaxis: 'y'
+};
+
+const layout = {
+    //title: 'Bitcoin Mum Grafiği',
+    xaxis: {
+        autorange: true,
+        rangeslider: { visible: false },
+        type: 'date'
+    },
+    yaxis: {
+        autorange: true,
+        type: 'linear'
+    }
+};
+
+// Plotly grafik oluştur
+Plotly.newPlot('bitcoin-chart', [trace], layout);
+
+// Güncelleme süresine göre veri çekme ve grafik güncelleme işlemleri
+function updateBitcoinChart() {
+    fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
+        .then(response => response.json())
+        .then(data => {
+            const newPrice = parseFloat(data.price);
+            prices.push(newPrice);
+            timestamps.push(new Date());
+
+            // Sadece son 50 veriyi göster
+            if (prices.length > 50) {
+                prices = prices.slice(prices.length - 50);
+                timestamps = timestamps.slice(timestamps.length - 50);
+            }
+
+            // Grafik verisini güncelle
+            Plotly.update('bitcoin-chart', { x: [timestamps], close: [prices], high: [prices], low: [prices], open: [prices] });
+        })
+        .catch(error => {
+            console.error('Anlık veri alınamadı:', error);
+        });
+}
+
+// Belirli aralıklarla grafik güncelleme işlemini tekrarla
+setInterval(updateBitcoinChart, updateInterval);</script>
 </body>
 </html>

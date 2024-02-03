@@ -22,4 +22,5 @@ urlpatterns = [
     path('', include('digger.urls')),
     path('charts/', include('digger.urls')),
     path('bitcoin-chart-view/', include('digger.urls')),
+    path('test/', include('digger.urls')),
 ]

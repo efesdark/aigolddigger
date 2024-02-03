@@ -5,16 +5,35 @@ import requests
 def home(request):
     return render(request, 'home.html')
 
+def test(request):
+    return render(request, 'test/test.html')
+
 def chart(request):
     return render(request, 'chart.html') 
 from django.shortcuts import render
 import requests
 
 def charts(request):
-  # Binance API'dan canlı bitcoin fiyatlarını çekmek için bir istek yapın
+    # Binance API'den canlı bitcoin fiyatlarını çekmek için bir istek yapın
     binance_api_url = 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'
     response = requests.get(binance_api_url)
     data = response.json()
+
+    # Binance API'den son işlemleri çekmek için bir istek yapın (trade parametresi)
+    binance_trades_url = 'https://api.binance.com/api/v3/trades?symbol=BTCUSDT'
+    response_trades = requests.get(binance_trades_url)
+    trades = response_trades.json()
+
+    # Binance API'den sembol bilgisini çekmek için bir istek yapın
+    exchange_info_url = 'https://api.binance.com/api/v3/exchangeInfo'
+    response = requests.get(exchange_info_url)
+    exchange_info = response.json()
+
+    # İlgilenilen sembolü seçin (örneğin, BTCUSDT)
+    symbol_info = next(item for item in exchange_info['symbols'] if item['symbol'] == 'BTCUSDT')
+
+    # Sembole ait bilgileri çekin
+    current_coin = symbol_info['baseAsset']
 
     # Veriyi işleyerek grafikte kullanılabilir formata dönüştürün
     current_price = float(data['lastPrice'])
@@ -24,14 +43,18 @@ def charts(request):
     volume = float(data['volume'])
     volume_usdt = float(data['quoteVolume'])
 
+    
+
     # Template'e gönderilecek context oluşturun
     context = {
+        'current_coin': current_coin,
         'current_price': current_price,
         'change_percentage': change_percentage,
         'high_price': high_price,
         'low_price': low_price,
         'volume': volume,
-        'volume_usdt': volume_usdt,
+        'volume_usdt': volume_usdt, 
+        'trades': trades,
     }
 
     # HTML template'i ile birlikte render edin
