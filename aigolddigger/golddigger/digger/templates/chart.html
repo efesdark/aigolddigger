@@ -167,7 +167,7 @@
             
         </div>
         <div class="col-md-6">
-            <div id="bitcoinChart" style="width: 800px; height: 400px;"></div>
+            <div id="bitcoinChart" style="width: 100px; height: 400px;"></div>
         </div>
 
         <div class="col-md-2">
@@ -199,8 +199,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const chart = LightweightCharts.createChart(document.getElementById('bitcoinChart'), {
-            width: 800,
-            height: 400,
+            width: 650,
+            height: 320,
         });
 
         const candlestickSeries = chart.addCandlestickSeries();
@@ -251,7 +251,7 @@ const candlestickChart = new Chart(ctx, {
 });
 document.addEventListener('DOMContentLoaded', function () {
     const chart = LightweightCharts.createChart(document.getElementById('bitcoinChart'), {
-        width: 800,
+        width: 500,
         height: 400,
     });
 

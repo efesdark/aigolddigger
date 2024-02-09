@@ -12,7 +12,7 @@ def candles(request):
     params = {
         'symbol': 'BTCUSDT',
         'interval': '1m',
-        'limit': 30,
+        'limit': 3000,
     }
     response = requests.get(binance_api_url, params=params)
     binance_data = response.json()
@@ -27,10 +27,15 @@ def candles(request):
     } for entry in binance_data]
     return render(request, 'candles.html', {'formatted_data': formatted_data})
 
+
+
+
 def chart(request):
     return render(request, 'chart.html') 
 from django.shortcuts import render
 import requests
+
+
 
 def charts(request):
     # Binance API'den canlı bitcoin fiyatlarını çekmek için bir istek yapın
@@ -66,7 +71,7 @@ def charts(request):
     params = {
         'symbol': 'BTCUSDT',
         'interval': '1m',
-        'limit': 30,
+        'limit': 300,
     }
     response = requests.get(binance_api_url, params=params)
     binance_data = response.json()

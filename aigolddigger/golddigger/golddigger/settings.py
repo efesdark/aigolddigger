@@ -70,7 +70,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'golddigger.wsgi.application'
-
 ASGI_APPLICATION = 'golddigger.asgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -140,11 +139,8 @@ CACHES = {
 
 # Django Channels için Redis yapılandırması (isteğe bağlı)
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
 """

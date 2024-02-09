@@ -13,7 +13,7 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 
-import digger.routing
+from digger.routing import websocket_urlpatterns
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'golddigger.settings')
 
 application = ProtocolTypeRouter(
@@ -23,7 +23,7 @@ application = ProtocolTypeRouter(
             URLRouter(
                 # routing için channels.routing kısmını burada ekleyin
                 # örnek olarak: "your_app.routing.websocket_urlpatterns",
-                digger.routing.websocket_urlpatterns,
+               websocket_urlpatterns
             )
         ),
     }

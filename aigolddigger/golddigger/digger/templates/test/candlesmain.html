@@ -22,20 +22,32 @@
 
             const candlestickSeries = chart.addCandlestickSeries();
 
-            const socket = new WebSocket('ws://' + window.location.host + '/ws/candlestick/');
+            // Binance API'den alınan verileri Python tarafından gönderilen değişkenle güncelle
+            const formattedData = {{ formatted_data|safe }};
 
-            socket.onmessage = function (event) {
-                const data = JSON.parse(event.data);
-                // Yeni verileri grafiğe ekle
-                candlestickSeries.update({
-                    time: data.timestamp,
-                    open: data.open,
-                    high: data.high,
-                    low: data.low,
-                    close: data.close,
-                });
-            };
+            // Grafiği güncelle
+            candlestickSeries.setData(formattedData);
         });
     </script>
 </body>
 </html>
+
+def candles(request):
+    binance_api_url = 'https://api.binance.com/api/v3/klines'
+    params = {
+        'symbol': 'BTCUSDT',
+        'interval': '1m',
+        'limit': 3000,
+    }
+    response = requests.get(binance_api_url, params=params)
+    binance_data = response.json()
+
+    # Verileri uygun formata dönüştür
+    formatted_data = [{
+    'time': entry[0],
+    'open': float(entry[1]),
+    'high': float(entry[2]),
+    'low': float(entry[3]),
+    'close': float(entry[4]),
+    } for entry in binance_data]
+    return render(request, 'candles.html', {'formatted_data': formatted_data})
