@@ -10,5 +10,6 @@ urlpatterns = [
     path('charts/', charts, name='charts'),
     path('test/', test, name='test'),
     path('candles/', candles, name='candles'),
+
 ]
 

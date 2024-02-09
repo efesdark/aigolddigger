@@ -10,3 +10,5 @@ class CryptoTable  (models.Model):
     high= models.DecimalField(decimal_places=50, max_digits=200)
     low= models.DecimalField(decimal_places=50, max_digits=200)
     close= models.DecimalField(decimal_places=50, max_digits=200)
+    
+ 

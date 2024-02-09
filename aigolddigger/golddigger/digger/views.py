@@ -1,12 +1,35 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 import ccxt
+import pandas as pd
 import requests
+import json
 def home(request):
     return render(request, 'home.html')
 
 def test(request):
-    return render(request, 'test/test.html')
+    binance_symbol = 'BTC/USDT'
+    binance_timeframe = '1m'
+    binance_limit = 3000
+
+    binance = ccxt.binance()
+    binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
+
+    # Verileri uygun formata dönüştür
+    formatted_data = [{
+        'time': entry[0],
+        'open': float(entry[1]),
+        'high': float(entry[2]),
+        'low': float(entry[3]),
+        'close': float(entry[4]),
+    } for entry in binance_data]
+
+    # JSON formatına dönüştür
+    formatted_data_json = json.dumps(formatted_data)
+
+    return render(request, 'test/test.html', {'formatted_data_json': formatted_data_json})
+
+
 def candles(request):
     binance_api_url = 'https://api.binance.com/api/v3/klines'
     params = {
@@ -126,4 +149,11 @@ def get_bitcoin_price(request):
 
     except ccxt.ExchangeError as e:
         return JsonResponse({'error': f'Exchange hatası: {e}'})
+    
+def python_test_ccxt(request):
+    binance= ccxt.binance()
+    market_binance=binance.load_markets()
+    
+    
+
         
