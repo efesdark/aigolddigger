@@ -7,6 +7,25 @@ def home(request):
 
 def test(request):
     return render(request, 'test/test.html')
+def candles(request):
+    binance_api_url = 'https://api.binance.com/api/v3/klines'
+    params = {
+        'symbol': 'BTCUSDT',
+        'interval': '1m',
+        'limit': 30,
+    }
+    response = requests.get(binance_api_url, params=params)
+    binance_data = response.json()
+
+    # Verileri uygun formata dönüştür
+    formatted_data = [{
+    'time': entry[0],
+    'open': float(entry[1]),
+    'high': float(entry[2]),
+    'low': float(entry[3]),
+    'close': float(entry[4]),
+    } for entry in binance_data]
+    return render(request, 'candles.html', {'formatted_data': formatted_data})
 
 def chart(request):
     return render(request, 'chart.html') 
@@ -42,7 +61,26 @@ def charts(request):
     low_price = float(data['lowPrice'])
     volume = float(data['volume'])
     volume_usdt = float(data['quoteVolume'])
+ #test
+    binance_api_url = 'https://api.binance.com/api/v3/klines'
+    params = {
+        'symbol': 'BTCUSDT',
+        'interval': '1m',
+        'limit': 30,
+    }
+    response = requests.get(binance_api_url, params=params)
+    binance_data = response.json()
 
+    # Verileri uygun formata dönüştür
+    formatted_data = [{
+    'time': entry[0],
+    'open': float(entry[1]),
+    'high': float(entry[2]),
+    'low': float(entry[3]),
+    'close': float(entry[4]),
+    } for entry in binance_data]
+    #return render(request, 'chart.html', context, {'formatted_data': formatted_data})
+    
     
 
     # Template'e gönderilecek context oluşturun
@@ -55,10 +93,14 @@ def charts(request):
         'volume': volume,
         'volume_usdt': volume_usdt, 
         'trades': trades,
+        'formatted_data': formatted_data,
     }
 
-    # HTML template'i ile birlikte render edin
     return render(request, 'chart.html', context)
+   
+
+    # HTML template'i ile birlikte render edin
+   
 
 
 

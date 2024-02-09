@@ -1,6 +1,6 @@
 # myapp/urls.py
 from django.urls import path
-from .views import home, get_bitcoin_price, chart, charts,test
+from .views import home, get_bitcoin_price, chart, charts,test,candles
 
 
 urlpatterns = [
@@ -9,5 +9,6 @@ urlpatterns = [
     path('chart/', chart, name='chart'),
     path('charts/', charts, name='charts'),
     path('test/', test, name='test'),
+    path('candles/', candles, name='candles'),
 ]
 

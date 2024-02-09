@@ -1,5 +1,5 @@
 <!-- digger/bitcoin_chart.html -->
-{% load static %}
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -36,5 +36,21 @@
     <!-- Bootstrap JS and dependencies -->
     <script src="{% static 'bootstrap-5.3.2-dist/js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chart = LightweightCharts.createChart(document.getElementById('bitcoinChart'), {
+                width: 800,
+                height: 400,
+            });
+
+            const candlestickSeries = chart.addCandlestickSeries();
+
+            // Binance API'den alınan verileri Python tarafından gönderilen değişkenle güncelle
+            const formattedData = {{ formatted_data|safe }};
+
+            // Grafiği güncelle
+            candlestickSeries.setData(formattedData);
+        });
+    </script>
 </body>
 </html>

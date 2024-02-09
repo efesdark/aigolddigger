@@ -11,7 +11,10 @@
     <link rel="stylesheet" href="{% static 'bootstrap-5.3.2-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap">
     <title>Golddiger</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    
+    <script src="{% static 'js/lightweight-charts.standalone.production.js' %}"></script>
+
     <style>
         p {
         font-family: 'Open Sans', sans-serif;
@@ -164,10 +167,7 @@
             
         </div>
         <div class="col-md-6">
-            <div class="CandleGraph">
-            
-            <div id="bitcoin-chart"></div>
-            <div>
+            <div id="bitcoinChart" style="width: 800px; height: 400px;"></div>
         </div>
 
         <div class="col-md-2">
@@ -184,6 +184,8 @@
         <!-- Alt Sıradaki İçerik -->
         <div class="col-md-12">
             <p>Real Time Data</p>
+            
+
         </div>
     </div>
     
@@ -193,63 +195,74 @@
 <!-- Bootstrap JS and dependencies -->
 <script src="{% static 'bootstrap-5.3.2-dist/js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js' %}"></script>
-<script>// Başlangıç fiyatı
-    let prices = []; // Fiyat verilerini tutacak dizi
-let timestamps = []; // Zaman damgalarını tutacak dizi
-let updateInterval = 1000; // Güncelleme aralığı (1 saniye)
-
-// Grafik oluşturulması için gerekli ayarlar
-const trace = {
-    x: timestamps,
-    close: prices,
-    high: prices,
-    low: prices,
-    open: prices,
-    type: 'candlestick',
-    xaxis: 'x',
-    yaxis: 'y'
-};
-
-const layout = {
-    //title: 'Bitcoin Mum Grafiği',
-    xaxis: {
-        autorange: true,
-        rangeslider: { visible: false },
-        type: 'date'
-    },
-    yaxis: {
-        autorange: true,
-        type: 'linear'
-    }
-};
-
-// Plotly grafik oluştur
-Plotly.newPlot('bitcoin-chart', [trace], layout);
-
-// Güncelleme süresine göre veri çekme ve grafik güncelleme işlemleri
-function updateBitcoinChart() {
-    fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
-        .then(response => response.json())
-        .then(data => {
-            const newPrice = parseFloat(data.price);
-            prices.push(newPrice);
-            timestamps.push(new Date());
-
-            // Sadece son 50 veriyi göster
-            if (prices.length > 50) {
-                prices = prices.slice(prices.length - 50);
-                timestamps = timestamps.slice(timestamps.length - 50);
-            }
-
-            // Grafik verisini güncelle
-            Plotly.update('bitcoin-chart', { x: [timestamps], close: [prices], high: [prices], low: [prices], open: [prices] });
-        })
-        .catch(error => {
-            console.error('Anlık veri alınamadı:', error);
+<script src="{% static 'chart.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chart = LightweightCharts.createChart(document.getElementById('bitcoinChart'), {
+            width: 800,
+            height: 400,
         });
-}
 
-// Belirli aralıklarla grafik güncelleme işlemini tekrarla
-setInterval(updateBitcoinChart, updateInterval);</script>
+        const candlestickSeries = chart.addCandlestickSeries();
+
+        // Binance API'den alınan verileri Python tarafından gönderilen değişkenle güncelle
+        const formattedData = {{ formatted_data|safe }};
+
+        // Grafiği güncelle
+        candlestickSeries.setData(formattedData);
+    });
+</script>
+<script>
+    const binanceData = [
+    // Buraya Python kodundan alınan veriyi ekleyin
+    // Örneğin: { timestamp: '2022-01-01T00:00:00.000Z', open: 100, high: 120, low: 80, close: 110, volume: 1000 },
+    // ...
+];
+
+// Veriyi uygun formata dönüştür
+const formattedData = binanceData.map(item => ({
+    t: new Date(item.timestamp),
+    o: parseFloat(item.open),
+    h: parseFloat(item.high),
+    l: parseFloat(item.low),
+    c: parseFloat(item.close),
+}));
+
+// Mum grafiklerini çizmek için Chart.js kullanımı
+const ctx = document.getElementById('candlestickChart').getContext('2d');
+const candlestickChart = new Chart(ctx, {
+    type: 'candlestick',
+    data: {
+        datasets: [{
+            label: 'Binance Candlestick Chart',
+            data: formattedData,
+        }],
+    },
+    options: {
+        scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'hour', // Zaman birimi, isteğe bağlı olarak değiştirilebilir
+                },
+            },
+        },
+    },
+});
+document.addEventListener('DOMContentLoaded', function () {
+    const chart = LightweightCharts.createChart(document.getElementById('bitcoinChart'), {
+        width: 800,
+        height: 400,
+    });
+
+    const candlestickSeries = chart.addCandlestickSeries();
+
+    // Binance API'den alınan verileri Python tarafından gönderilen değişkenle güncelle
+    const formattedData = {{ formatted_data|safe }};
+
+    // Grafiği güncelle
+    candlestickSeries.setData(formattedData);
+});
+</script>
 </body>
 </html>
