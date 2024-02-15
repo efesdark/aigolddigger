@@ -4,20 +4,21 @@ import ccxt
 import pandas as pd
 import requests
 import json
+from datetime import datetime
 def home(request):
     return render(request, 'home.html')
 
 def test(request):
     binance_symbol = 'BTC/USDT'
-    binance_timeframe = '1m'
-    binance_limit = 3000
+    binance_timeframe = '1d'
+    binance_limit = 300
 
     binance = ccxt.binance()
     binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
 
     # Verileri uygun formata dönüştür
     formatted_data = [{
-        'time': entry[0],
+        'time': datetime.utcfromtimestamp(entry[0] / 1000).strftime('%Y-%m-%d %H:%M:%S'),  # Unix zaman damgasını çevir
         'open': float(entry[1]),
         'high': float(entry[2]),
         'low': float(entry[3]),
@@ -25,9 +26,10 @@ def test(request):
     } for entry in binance_data]
 
     # JSON formatına dönüştür
-    formatted_data_json = json.dumps(formatted_data)
+    #formatted_data_json = json.dumps(formatted_data)
 
-    return render(request, 'test/test.html', {'formatted_data_json': formatted_data_json})
+    #return render(request, 'test/test.html', {'formatted_data_json': formatted_data_json})
+    return render(request, 'test/test.html', {'formatted_data': formatted_data})
 
 
 def candles(request):

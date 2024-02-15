@@ -23,12 +23,22 @@
             const candlestickSeries = chart.addCandlestickSeries();
 
             // Django görünümünden gelen JSON formatındaki veriyi al
-            const formattedDataJson = '{{ formatted_data_json|safe }}';
-            const formattedData = JSON.parse(formattedDataJson);
+            //const formattedDataJson = '{{ formatted_data_json|safe }}'; galiba tırnaklar patlatıyor
+            //const formattedData = JSON.parse(formattedDataJson);
+           
+            const formattedData = {{ formatted_data|safe }};
+            // Zaman verisini uygun formata dönüştür
+     
 
             // Grafiği güncelle
             candlestickSeries.setData(formattedData);
+            const dataContainer = document.getElementById('formattedDataContainer');
+        dataContainer.innerHTML = JSON.stringify(formattedData, null, 2);
         });
+        
+    
+        
     </script>
+    <div id="formattedDataContainer"></div>
 </body>
 </html>
