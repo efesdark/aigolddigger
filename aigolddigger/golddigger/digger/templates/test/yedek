@@ -462,4 +462,56 @@ def python_test_ccxt(request):
     
     
 
-        
+-------------
+def charts(request):
+    # Binance API'den canlı bitcoin fiyatlarını çekmek için bir istek yapın
+    binance_api_url = 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'
+    response = requests.get(binance_api_url)
+    data = response.json()
+
+    # Binance API'den son işlemleri çekmek için bir istek yapın (trade parametresi)
+    binance_trades_url = 'https://api.binance.com/api/v3/trades?symbol=BTCUSDT'
+    response_trades = requests.get(binance_trades_url)
+    trades = response_trades.json()
+
+    # Binance API'den sembol bilgisini çekmek için bir istek yapın
+    exchange_info_url = 'https://api.binance.com/api/v3/exchangeInfo'
+    response = requests.get(exchange_info_url)
+    exchange_info = response.json()
+
+    # İlgilenilen sembolü seçin (örneğin, BTCUSDT)
+    symbol_info = next(item for item in exchange_info['symbols'] if item['symbol'] == 'BTCUSDT')
+
+    # Sembole ait bilgileri çekin
+    current_coin = symbol_info['baseAsset']
+
+    # Veriyi işleyerek grafikte kullanılabilir formata dönüştürün
+    current_price = float(data['lastPrice'])
+    change_percentage = float(data['priceChangePercent'])
+    high_price = float(data['highPrice'])
+    low_price = float(data['lowPrice'])
+    volume = float(data['volume'])
+    volume_usdt = float(data['quoteVolume'])
+ #test
+    binance_api_url = 'https://api.binance.com/api/v3/klines'
+    params = {
+        'symbol': 'BTCUSDT',
+        'interval': '1m',
+        'limit': 300,
+    }
+    response = requests.get(binance_api_url, params=params)
+    binance_data = response.json()
+
+    # Verileri uygun formata dönüştür
+    formatted_data = [{
+    'time': entry[0],
+    'open': float(entry[1]),
+    'high': float(entry[2]),
+    'low': float(entry[3]),
+    'close': float(entry[4]),
+    } for entry in binance_data]
+    #return render(request, 'chart.html', context, {'formatted_data': formatted_data})
+    -------------
+
+    "time": "2024-02-22 10:13:00", dakikalık
+    "time": "2024-02-22 00:00:00" gün

@@ -28,12 +28,39 @@
            
             const formattedData = {{ formatted_data|safe }};
             // Zaman verisini uygun formata dönüştür
-     
+        
+            chart.timeScale().fitContent();
+            
+               // Saat ve dakikayı eklemek için format fonksiyonunu kullan
+            const timesframe = formattedData.map(item => item.timesframe);
+            const firstTime = timesframe[0];
+            let timeScaleOptions;
 
+            // timeValues dizisinin ilk elemanını kontrol et
+            if (firstTime.includes('1d')) {
+                // "1d" içeriyorsa, günlük zaman dilimi ayarları
+                timeScaleOptions = {
+                    timeVisible: true,
+                    secondsVisible: false,
+                    
+                };
+            } else {
+                // "1d" içermiyorsa, diğer zaman dilimi ayarları
+                timeScaleOptions = {
+                    timeVisible: true,
+                    secondsVisible: true,
+                    
+                };
+            }
+           
+
+            chart.applyOptions({
+                timeScale: timeScaleOptions,
+            });
             // Grafiği güncelle
             candlestickSeries.setData(formattedData);
             const dataContainer = document.getElementById('formattedDataContainer');
-        dataContainer.innerHTML = JSON.stringify(formattedData, null, 2);
+        dataContainer.innerHTML = JSON.stringify(firstTime, null, 2);
         });
         
     

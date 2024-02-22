@@ -208,11 +208,22 @@
         // Binance API'den alınan verileri Python tarafından gönderilen değişkenle güncelle
         const formattedData = {{ formatted_data|safe }};
 
+        const formattedDateData = formattedData.map(item => ({
+            //time: new Date(item.time).toLocaleString( { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}),
+            time: item.time,
+            open: parseFloat(item.open),
+            high: parseFloat(item.high),
+            low: parseFloat(item.low),
+            close: parseFloat(item.close),
+        }));
         // Grafiği güncelle
         candlestickSeries.setData(formattedData);
+        const dataContainer = document.getElementById('formattedDataContainer');
+        dataContainer.innerHTML = JSON.stringify(formattedDateData, null, 2);
     });
 </script>
 <script>
+    /*
     const binanceData = [
     // Buraya Python kodundan alınan veriyi ekleyin
     // Örneğin: { timestamp: '2022-01-01T00:00:00.000Z', open: 100, high: 120, low: 80, close: 110, volume: 1000 },
@@ -226,7 +237,7 @@ const formattedData = binanceData.map(item => ({
     h: parseFloat(item.high),
     l: parseFloat(item.low),
     c: parseFloat(item.close),
-}));
+}));*/
 
 // Mum grafiklerini çizmek için Chart.js kullanımı
 /*
@@ -250,21 +261,8 @@ const candlestickChart = new Chart(ctx, {
         },
     },
 });*/
-document.addEventListener('DOMContentLoaded', function () {
-    const chart = LightweightCharts.createChart(document.getElementById('bitcoinChart'), {
-        width: 500,
-        height: 400,
-    });
-
-    const candlestickSeries = chart.addCandlestickSeries();
-
-    // Binance API'den alınan verileri Python tarafından gönderilen değişkenle güncelle
-    const formattedData = {{ formatted_data|safe }};
-
-    // Grafiği güncelle
-    candlestickSeries.setData(formattedData);
-});
 
 </script>
+<div id="formattedDataContainer"></div>
 </body>
 </html>

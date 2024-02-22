@@ -6,25 +6,91 @@ import requests
 import json
 from datetime import datetime
 def home(request):
-    return render(request, 'home.html')
+    # Binance API'den canlı bitcoin fiyatlarını çekmek için bir istek yapın
+    binance_api_url = 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'
+    response = requests.get(binance_api_url)
+    data = response.json()
 
-def test(request):
+    # Binance API'den son işlemleri çekmek için bir istek yapın (trade parametresi)
+    binance_trades_url = 'https://api.binance.com/api/v3/trades?symbol=BTCUSDT'
+    response_trades = requests.get(binance_trades_url)
+    trades = response_trades.json()
+
+    # Binance API'den sembol bilgisini çekmek için bir istek yapın
+    exchange_info_url = 'https://api.binance.com/api/v3/exchangeInfo'
+    response = requests.get(exchange_info_url)
+    exchange_info = response.json()
+
+    # İlgilenilen sembolü seçin (örneğin, BTCUSDT)
+    symbol_info = next(item for item in exchange_info['symbols'] if item['symbol'] == 'BTCUSDT')
+
+    # Sembole ait bilgileri çekin
+    current_coin = symbol_info['baseAsset']
+
+    # Veriyi işleyerek grafikte kullanılabilir formata dönüştürün
+    current_price = float(data['lastPrice'])
+    change_percentage = float(data['priceChangePercent'])
+    high_price = float(data['highPrice'])
+    low_price = float(data['lowPrice'])
+    volume = float(data['volume'])
+    volume_usdt = float(data['quoteVolume'])
+ #test
     binance_symbol = 'BTC/USDT'
-    binance_timeframe = '1d'
+    binance_timeframe = '5m'
     binance_limit = 300
 
     binance = ccxt.binance()
     binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
-
+ 
     # Verileri uygun formata dönüştür
+    
     formatted_data = [{
-        'time': datetime.utcfromtimestamp(entry[0] / 1000).strftime('%Y-%m-%d %H:%M:%S'),  # Unix zaman damgasını çevir
+        #'time': datetime.utcfromtimestamp(entry[0] / 1000).strftime('%Y-%m-%d %H:%M:%S'),  # Unix zaman damgasını çevir
+        'time': entry[0]/1000, 
         'open': float(entry[1]),
         'high': float(entry[2]),
         'low': float(entry[3]),
         'close': float(entry[4]),
-    } for entry in binance_data]
+        'timesframe': binance_timeframe,
+         } for entry in binance_data]
+    
+    
 
+    # Template'e gönderilecek context oluşturun
+    context = {
+        'current_coin': current_coin,
+        'current_price': current_price,
+        'change_percentage': change_percentage,
+        'high_price': high_price,
+        'low_price': low_price,
+        'volume': volume,
+        'volume_usdt': volume_usdt, 
+        'trades': trades,
+        'formatted_data': formatted_data,
+    }
+
+    return render(request, 'home.html', context)
+    
+def test(request):
+    binance_symbol = 'BTC/USDT'
+    binance_timeframe = '5m'
+    binance_limit = 300
+
+    binance = ccxt.binance()
+    binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
+ 
+    # Verileri uygun formata dönüştür
+    
+    formatted_data = [{
+        #'time': datetime.utcfromtimestamp(entry[0] / 1000).strftime('%Y-%m-%d %H:%M:%S'),  # Unix zaman damgasını çevir
+        'time': entry[0]/1000, 
+        'open': float(entry[1]),
+        'high': float(entry[2]),
+        'low': float(entry[3]),
+        'close': float(entry[4]),
+        'timesframe': binance_timeframe,
+         } for entry in binance_data]
+  
     # JSON formatına dönüştür
     #formatted_data_json = json.dumps(formatted_data)
 
@@ -37,7 +103,7 @@ def candles(request):
     params = {
         'symbol': 'BTCUSDT',
         'interval': '1m',
-        'limit': 3000,
+        'limit': 300,
     }
     response = requests.get(binance_api_url, params=params)
     binance_data = response.json()
