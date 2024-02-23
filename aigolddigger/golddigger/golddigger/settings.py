@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'digger',
     'channels',
 ]
+CSRF_COOKIE_SECURE = True  # Sadece HTTPS üzerinden erişilebilir
+CSRF_COOKIE_HTTPONLY = True  # JavaScript tarafından erişilemez
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -49,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'golddigger.urls'

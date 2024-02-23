@@ -1,0 +1,44 @@
+<!-- ajax.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAX TEST</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    
+</head>
+<body>
+    <button id="send-message">Gönder</button>
+    <div id="message"></div>   
+
+
+
+    <script>
+        const csrftoken = '{{ csrf_token }}';
+      
+        $(document).ready(function() {
+          $("#send-message").click(function() {
+            $.ajax({
+              url: "{% url 'test_message' %}",
+              type: "POST",
+              data: {
+                message: "test",
+              },
+              beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+              },
+              success: function(response) {
+                $("#message").text(response.message);
+              },
+            });
+          });
+        });
+      </script>
+    
+   
+</body>
+</html>

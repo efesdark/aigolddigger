@@ -7,13 +7,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitcoin Candlestick Chart</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <script src="{% static 'js/lightweight-charts.standalone.production.js' %}"></script>
 </head>
 <body>
     <div id="bitcoinChart" style="width: 800px; height: 400px;"></div>
+    <button onclick="setTimeFrame('1d')">1 Day</button>
+    <button onclick="setTimeFrame('1h')">1 Hour</button>
+    <button onclick="setTimeFrame('1m')">1 Minute</button>
+    
+<div id="message"></div>
+
 
     <script>
+     
+        
+       
+
         document.addEventListener('DOMContentLoaded', function () {
             const chart = LightweightCharts.createChart(document.getElementById('bitcoinChart'), {
                 width: 800,
@@ -22,12 +33,13 @@
 
             const candlestickSeries = chart.addCandlestickSeries();
 
-            // Django görünümünden gelen JSON formatındaki veriyi al
-            //const formattedDataJson = '{{ formatted_data_json|safe }}'; galiba tırnaklar patlatıyor
-            //const formattedData = JSON.parse(formattedDataJson);
+            
            
             const formattedData = {{ formatted_data|safe }};
             // Zaman verisini uygun formata dönüştür
+            
+    
+            
         
             chart.timeScale().fitContent();
             
@@ -58,14 +70,79 @@
                 timeScale: timeScaleOptions,
             });
             // Grafiği güncelle
+
+            
+    
+            
+
+
+
+
             candlestickSeries.setData(formattedData);
             const dataContainer = document.getElementById('formattedDataContainer');
-        dataContainer.innerHTML = JSON.stringify(firstTime, null, 2);
+            const timesframe2 = formattedData.map(item => item.timesframe);
+            const firstTime2 = timesframe2[0];
+            dataContainer.innerHTML = JSON.stringify(firstTime2, null, 2);
         });
+        /*
+        function updateChart(timesFrame) {
+            // AJAX isteği ile Django görünümüne yeni zaman dilimini ileterek güncelleme yap
+            $.ajax({
+                type: 'GET',
+                url: '/update_chart/',  // Django görünümü için uygun URL'yi kullanın
+                data: {
+                    'binance_timeframe': timesFrame,
+                },
+                success: function (data) {
+                    // Django görünümünden gelen yeni verileri grafiğe uygula
+                    const formattedData = JSON.parse(data);
+                    console.log(data)
+                    const dataContainer = document.getElementById('formattedDataContainer');
+                    dataContainer.innerHTML = JSON.stringify(firstTime, null, 2);
+                    candlestickSeries.setData(formattedData);
+                    
+                },
+            });
+        }
+        function setTimeFrame(timesFrame) {
+            // Seçilen zaman dilimine göre güncelleme yap
+            updateChart(timesFrame);
+        }
         
-    
+        */
+        
+
         
     </script>
+    <button id="send-message">Gönder</button>
+    <div id="message"></div>   
+
+
+
+    <script>
+        const csrftoken = '{{ csrf_token }}';
+      
+        $(document).ready(function() {
+          $("#send-message").click(function() {
+            $.ajax({
+              url: "{% url 'test_message' %}",
+              type: "POST",
+              data: {
+                message: "1d",
+              },
+              beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+              },
+              success: function(response) {
+                $("#message").text(response.message);
+              },
+            });
+          });
+        });
+      </script>
+    <div id="resultContainer"></div>
+    
     <div id="formattedDataContainer"></div>
+    
 </body>
 </html>

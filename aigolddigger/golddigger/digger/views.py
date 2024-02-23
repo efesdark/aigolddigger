@@ -5,6 +5,14 @@ import pandas as pd
 import requests
 import json
 from datetime import datetime
+def ajax(request):
+    return render(request, 'test/ajax.html')
+
+def test_message(request):
+  if request.method == "POST":
+    message = request.POST["message"]
+    return JsonResponse({"message": message})
+  
 def home(request):
     # Binance API'den canlı bitcoin fiyatlarını çekmek için bir istek yapın
     binance_api_url = 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'
@@ -34,7 +42,7 @@ def home(request):
     low_price = float(data['lowPrice'])
     volume = float(data['volume'])
     volume_usdt = float(data['quoteVolume'])
- #test
+ #esential
     binance_symbol = 'BTC/USDT'
     binance_timeframe = '5m'
     binance_limit = 300
@@ -70,10 +78,11 @@ def home(request):
     }
 
     return render(request, 'home.html', context)
+
     
 def test(request):
     binance_symbol = 'BTC/USDT'
-    binance_timeframe = '5m'
+    binance_timeframe = '1h'
     binance_limit = 300
 
     binance = ccxt.binance()
@@ -97,6 +106,39 @@ def test(request):
     #return render(request, 'test/test.html', {'formatted_data_json': formatted_data_json})
     return render(request, 'test/test.html', {'formatted_data': formatted_data})
 
+def update_chart(request):
+    if request.method == 'GET':
+        binance_symbol = 'BTC/USDT'
+        binance_timeframe = request.GET.get('binance_timeframe')  # Default olarak '5m' kullanabilirsiniz
+        binance_limit = 300
+
+        binance = ccxt.binance()
+        binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
+
+        formatted_data = [{
+            'time': entry[0] / 1000,
+            'open': float(entry[1]),
+            'high': float(entry[2]),
+            'low': float(entry[3]),
+            'close': float(entry[4]),
+            'timesframe': binance_timeframe,
+        } for entry in binance_data]
+
+        return JsonResponse({'formatted_data': formatted_data})
+
+
+def your_view_name(request):
+    if request.method == 'POST' and request.is_ajax():
+        # AJAX isteği üzerinden gelen veriyi al
+        example_value = request.POST.get('example_key', None)
+        
+        # İşlemleri gerçekleştir
+        result = f"{example_value} başarılı"
+
+        # JSON formatında bir yanıt gönder
+        return JsonResponse({'response_key': result})
+
+    return JsonResponse({'response_key': 'Hatalı istek'})
 
 def candles(request):
     binance_api_url = 'https://api.binance.com/api/v3/klines'
