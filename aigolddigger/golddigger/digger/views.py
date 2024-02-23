@@ -27,8 +27,55 @@ def test_message(request):
 
     return JsonResponse({'formatted_data': formatted_data})
   
+def searchCoin(request):
+    if request.method == 'GET':
+        search_query = request.GET.get('search_query', None)
+
+        # ccxt borsa nesnesini oluştur
+        binance = ccxt.binance()
+        # Binance'da bulunan tüm sembollerin listesini al
+        symbols = binance.fetch_markets()
+
+        # Sadece sembol isimlerini içeren bir liste oluştur
+        symbol_names = [symbol['symbol'] for symbol in symbols]
+
+        # search_query ile başlayan sembolleri filtrele
+        filtered_symbols = [symbol for symbol in symbol_names if symbol.startswith(search_query)]
+
+    
+    
 
 
+        
+
+        # Sonuçları göster
+
+        # Coin bilgilerini JSON formatında döndür
+        data = {
+            'symbol': filtered_symbols,
+            
+        }
+
+        return JsonResponse({'data': data})
+    else:
+        return JsonResponse({'error': 'Invalid request method'})
+    
+
+def send_symbol(request):
+    if request.method == 'POST':
+        symbol = request.POST.get('symbol', None)
+
+        # Symbol değeri ile istediğiniz işlemleri yapın
+        # Örneğin, bu değeri konsolda gösterelim
+        print('Received symbol:', symbol)
+
+        # Başarılı bir şekilde işlem yapıldığını belirtelim
+        response_data = {'success': True}
+    else:
+        # Yanlış bir HTTP method kullanıldığında bir hata döndürelim
+        response_data = {'error': 'Invalid request method'}
+
+    return JsonResponse(response_data)
   
 def ajax_message(request):
   if request.method == "POST":

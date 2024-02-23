@@ -6,11 +6,12 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <link rel="icon" href="{% static 'favicon/favicon.ico' %}" type="image/x-icon">
+    <link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'bootstrap-5.3.2-dist/css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap">
-    <title>Golddiger-chart.html</title>
+    <title>Golddiger</title>
     
     
     <script src="{% static 'js/lightweight-charts.standalone.production.js' %}"></script>
@@ -98,7 +99,7 @@
 
         <!-- Ana İçerik Alanı -->
         <div class="col-md-1">
-            <p>Currentcoin</p>
+            <p>Pair</p>
             <p>{{ current_coin }}</p>
         </div>
         <div class="col-md-1">
@@ -130,11 +131,11 @@
         </div>
         <div class="col-md-2 ">
             <div class="SearchCoin">
-            <p>Search coin</p>
-            
+                <p>Search coin</p>
+                <input type="text" id="searchCoinInput" placeholder="Search Coin">
+                <button onclick="searchCoin()">Search</button>
+                <div id="searchResult"></div>
             </div>
-        
-        
         </div>
         
         <!-- Sağ Kenarlık -->
@@ -311,6 +312,64 @@
     });
    
     
+</script>
+
+<script>
+    // ...
+
+    function sendSymbol(symbol) {
+        // Symbol değerini Python tarafına gönder
+        $.ajax({
+            type: 'POST',
+            url: '{% url "send_symbol" %}',
+            data: {
+                'symbol': symbol,
+            },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            },
+            success: function(response) {
+                console.log('Symbol sent successfully:', response);
+                // Burada gerekirse başka işlemler yapabilirsiniz
+            },
+            error: function(error) {
+                console.log('Error sending symbol:', error);
+            }
+        });
+    }
+
+    function searchCoin() {
+        var searchQuery = document.getElementById("searchCoinInput").value;
+
+        $.ajax({
+            type: 'GET',
+            url: '{% url "search_coin" %}',
+            data: {
+                'search_query': searchQuery,
+            },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            },
+            success: function(response) {
+                var data = response.data;
+
+                // Eski verileri temizle
+                $("#searchResult").html('');
+
+                // data nesnesinin içindeki symbol_names dizisi üzerinde döngü
+                if (Array.isArray(data.symbol)) {
+                    data.symbol.forEach(function (entry) {
+                        // Her sembol için bir düğme ekleyin
+                        var buttonHtml = '<button onclick="sendSymbol(\'' + entry + '\')">' + entry + '</button>';
+                        $("#searchResult").append(buttonHtml + '<br>');
+                    });
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    }
 </script>
 
 <div id="formattedDataContainer"></div>
