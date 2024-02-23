@@ -22,7 +22,7 @@ def test_message(request):
             'high': float(entry[2]),
             'low': float(entry[3]),
             'close': float(entry[4]),
-            'timesframe': binance_timeframe,
+            'timeframe': binance_timeframe,
         } for entry in binance_data]
 
     return JsonResponse({'formatted_data': formatted_data})
