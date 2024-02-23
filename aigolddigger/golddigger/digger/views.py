@@ -10,6 +10,28 @@ def ajax(request):
 
 def test_message(request):
   if request.method == "POST":
+    binance_timeframe = request.POST["binance_timeframe"]
+    binance_limit = 300
+    binance_symbol = 'BTC/USDT'
+    binance = ccxt.binance()
+    binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
+
+    formatted_data = [{
+            'time': entry[0] / 1000,
+            'open': float(entry[1]),
+            'high': float(entry[2]),
+            'low': float(entry[3]),
+            'close': float(entry[4]),
+            'timesframe': binance_timeframe,
+        } for entry in binance_data]
+
+    return JsonResponse({'formatted_data': formatted_data})
+  
+
+
+  
+def ajax_message(request):
+  if request.method == "POST":
     message = request.POST["message"]
     return JsonResponse({"message": message})
   

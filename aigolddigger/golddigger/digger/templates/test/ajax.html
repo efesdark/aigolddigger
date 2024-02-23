@@ -23,7 +23,7 @@
         $(document).ready(function() {
           $("#send-message").click(function() {
             $.ajax({
-              url: "{% url 'test_message' %}",
+              url: "{% url 'ajax_message' %}",
               type: "POST",
               data: {
                 message: "test",

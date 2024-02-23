@@ -13,9 +13,10 @@
 </head>
 <body>
     <div id="bitcoinChart" style="width: 800px; height: 400px;"></div>
-    <button onclick="setTimeFrame('1d')">1 Day</button>
-    <button onclick="setTimeFrame('1h')">1 Hour</button>
-    <button onclick="setTimeFrame('1m')">1 Minute</button>
+    <button class="button-t" data-value="1d">Day</button>
+    <button class="button-t" data-value="1m">Minute</button>
+    <button class="button-t" data-value="5m">Hour</button>
+
     
 <div id="message"></div>
 
@@ -80,68 +81,53 @@
 
             candlestickSeries.setData(formattedData);
             const dataContainer = document.getElementById('formattedDataContainer');
-            const timesframe2 = formattedData.map(item => item.timesframe);
-            const firstTime2 = timesframe2[0];
-            dataContainer.innerHTML = JSON.stringify(firstTime2, null, 2);
+           
         });
-        /*
-        function updateChart(timesFrame) {
-            // AJAX isteği ile Django görünümüne yeni zaman dilimini ileterek güncelleme yap
-            $.ajax({
-                type: 'GET',
-                url: '/update_chart/',  // Django görünümü için uygun URL'yi kullanın
-                data: {
-                    'binance_timeframe': timesFrame,
-                },
-                success: function (data) {
-                    // Django görünümünden gelen yeni verileri grafiğe uygula
-                    const formattedData = JSON.parse(data);
-                    console.log(data)
-                    const dataContainer = document.getElementById('formattedDataContainer');
-                    dataContainer.innerHTML = JSON.stringify(firstTime, null, 2);
-                    candlestickSeries.setData(formattedData);
-                    
-                },
-            });
-        }
-        function setTimeFrame(timesFrame) {
-            // Seçilen zaman dilimine göre güncelleme yap
-            updateChart(timesFrame);
-        }
-        
-        */
+       
         
 
         
-    </script>
-    <button id="send-message">Gönder</button>
-    <div id="message"></div>   
-
-
-
-    <script>
+   
         const csrftoken = '{{ csrf_token }}';
       
         $(document).ready(function() {
-          $("#send-message").click(function() {
+
+          $(".button-t").click(function() {
+            var selection = $(this).data("value");
+
             $.ajax({
               url: "{% url 'test_message' %}",
               type: "POST",
               data: {
-                message: "1d",
+                binance_timeframe: selection,
               },
               beforeSend: function(xhr) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
               },
               success: function(response) {
-                $("#message").text(response.message);
+                //const formattedData1 = JSON.parse(response.formatted_data);
+                
+                var formatted_data = response.formatted_data;
+                console.log("Formatted data:", formatted_data); 
+                var jformatted_data = JSON.parse(JSON.stringify(response.formatted_data));
+                console.log("JsonFormatted data:", jformatted_data); 
+                formatted_data.forEach(function(entry) {
+                    $("#message").append(JSON.stringify(entry) + '<br>');
+                });
               },
             });
+            
+
           });
         });
+
       </script>
     <div id="resultContainer"></div>
-    
+
+   
+    <div id="message"></div>   
+
+
     <div id="formattedDataContainer"></div>
     
 </body>
