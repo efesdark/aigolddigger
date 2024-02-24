@@ -19,6 +19,7 @@ def test_message(request):
   #Bu değişikliklerle binance_symbol artık send_symbol fonksiyonu içinde tanımlanacak ve test_message fonksiyonuna gönderilecek. 
   #Eğer send_symbol içinde değer belirtilmezse, varsayılan olarak 'BTC/USDT' kullanılacaktır.
   if request.method == "POST":
+    global binance_timeframe
     binance_timeframe = request.POST["binance_timeframe"]
     
     
@@ -50,13 +51,7 @@ def searchCoin(request):
         symbol_names = [symbol['symbol'] for symbol in symbols]
 
         # search_query ile başlayan sembolleri filtrele
-        filtered_symbols = [symbol for symbol in symbol_names if symbol.startswith(search_query)]
-
-    
-    
-
-
-        
+        filtered_symbols = [symbol for symbol in symbol_names if symbol.startswith(search_query.upper())]
 
         # Sonuçları göster
 
@@ -131,8 +126,9 @@ def home(request):
     volume = float(data['volume'])
     volume_usdt = float(data['quoteVolume'])
  #esential
-    binance_symbol = 'BTC/USDT'
-    binance_timeframe = '5m'
+    
+    global binance_symbol
+    global binance_timeframe 
     binance_limit = 300
 
     binance = ccxt.binance()
@@ -162,6 +158,7 @@ def home(request):
         'volume': volume,
         'volume_usdt': volume_usdt, 
         'trades': trades,
+
         'formatted_data': formatted_data,
     }
 
