@@ -77,8 +77,12 @@ def send_symbol(request):
         # Symbol değeri ile istediğiniz işlemleri yapın
         # Örneğin, bu değeri konsolda gösterelim
         global binance_symbol
+        
         binance_symbol = symbol
+        binance = ccxt.binance()
         binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
+         # Piyasa bilgilerini çek
+       
 
         formatted_data = [{
             'time': entry[0] / 1000,
@@ -90,52 +94,55 @@ def send_symbol(request):
         } for entry in binance_data]
 
     return JsonResponse({'formatted_data': formatted_data})
-  
+
+
+
 def ajax_message(request):
   if request.method == "POST":
     message = request.POST["message"]
     return JsonResponse({"message": message})
   
 def home(request):
-    # Binance API'den canlı bitcoin fiyatlarını çekmek için bir istek yapın
-    binance_api_url = 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'
-    response = requests.get(binance_api_url)
-    data = response.json()
-
-    # Binance API'den son işlemleri çekmek için bir istek yapın (trade parametresi)
-    binance_trades_url = 'https://api.binance.com/api/v3/trades?symbol=BTCUSDT'
-    response_trades = requests.get(binance_trades_url)
-    trades = response_trades.json()
-
-    # Binance API'den sembol bilgisini çekmek için bir istek yapın
-    exchange_info_url = 'https://api.binance.com/api/v3/exchangeInfo'
-    response = requests.get(exchange_info_url)
-    exchange_info = response.json()
-
-    # İlgilenilen sembolü seçin (örneğin, BTCUSDT)
-    symbol_info = next(item for item in exchange_info['symbols'] if item['symbol'] == 'BTCUSDT')
-
-    # Sembole ait bilgileri çekin
-    current_coin = symbol_info['baseAsset']
-
-    # Veriyi işleyerek grafikte kullanılabilir formata dönüştürün
-    current_price = float(data['lastPrice'])
-    change_percentage = float(data['priceChangePercent'])
-    high_price = float(data['highPrice'])
-    low_price = float(data['lowPrice'])
-    volume = float(data['volume'])
-    volume_usdt = float(data['quoteVolume'])
  #esential
     
     global binance_symbol
     global binance_timeframe 
     binance_limit = 300
-
+    
     binance = ccxt.binance()
+    # Binance'da bulunan tüm sembollerin listesini al
+    symbols = binance.fetch_markets()
+
+    # Piyasa bilgilerini çek
+    ticker = binance.fetch_ticker(binance_symbol)
+     # İlgili bilgileri al
+    try:
+        current_price = ticker['last']
+    except (TypeError, ValueError):
+        current_price = 0.0
+#burası bazen son datayı alırken patlıyor galiba coin coin işlem çiftlerinde
+    try:
+        change_percentage = float(ticker['percentage'])
+    except (TypeError, ValueError):
+        change_percentage = 0.0
+    # 24 saatlik en yüksek ve en düşük fiyatları al
+    high_price = float(ticker['high'])
+    low_price = float(ticker['low'])
+
+    # Hacim bilgilerini al
+    volume = ticker['baseVolume']
+    volume_usdt = ticker['quoteVolume']
+    # Binance API'den son işlemleri çekmek için bir istek yapın (trade parametresi)
+    link_symbol= binance_symbol.replace('/', '') 
+    binance_trades_url = f'https://api.binance.com/api/v3/trades?symbol={link_symbol}'
+    response_trades = requests.get(binance_trades_url)
+    trades = response_trades.json()    
+   
     binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
  
-    # Verileri uygun formata dönüştür
-    
+   
+
+
     formatted_data = [{
         #'time': datetime.utcfromtimestamp(entry[0] / 1000).strftime('%Y-%m-%d %H:%M:%S'),  # Unix zaman damgasını çevir
         'time': entry[0]/1000, 
@@ -144,13 +151,14 @@ def home(request):
         'low': float(entry[3]),
         'close': float(entry[4]),
         'timesframe': binance_timeframe,
+        
          } for entry in binance_data]
     
     
 
     # Template'e gönderilecek context oluşturun
     context = {
-        'current_coin': current_coin,
+        'current_coin': binance_symbol,
         'current_price': current_price,
         'change_percentage': change_percentage,
         'high_price': high_price,

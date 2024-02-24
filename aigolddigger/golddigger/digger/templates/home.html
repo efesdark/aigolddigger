@@ -62,6 +62,22 @@
         .button-v{
             font-size: 10px;
         }
+
+        .coinSelectorButtonContainer {
+            display: flex;
+            gap: 3px; /* Butonlar arasındaki boşluk */
+        }
+        
+        .coinSelectorButton {
+            background-color: #4CAF50; /* Yeşil renk */
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 8px;
+            cursor: pointer;
+            border-radius: 5px; /* Kenar yuvarlama */
+        }
 </style>
 </head>
 <body>
@@ -78,6 +94,13 @@
                     <a class="nav-link" href="#">Menu</a>
                 </li>
             </ul>
+            
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <input type="text" id="searchCoinInput" placeholder="Search Coin">
+                     <button onclick="searchCoin()">Search</button>
+                </li>
+            </ul>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="#">Info-closable x</a>
@@ -88,6 +111,14 @@
 </nav>
 <!-- Ana Konteyner (Container) -->
 <div class="container">
+    <div class="row">
+        <!-- arama sonucu -->
+        <div class="col-md-12">
+            
+            <div id="searchResult"></div>
+
+        </div>
+    </div>
     <!-- Üst Sıra (Row) -->
    
    
@@ -104,7 +135,8 @@
         </div>
         <div class="col-md-1">
             <p>Price</p>
-            <p>${{ current_price }}</p>
+            <p>${{ current_price }}%</p>
+           
         </div>
         <div class="col-md-1">
             <p>24h Change</p>
@@ -124,16 +156,14 @@
         </div>
         <div class="col-md-1">
             <p>24h Volume(usdt)</p>
+         
             <p>${{ volume_usdt }}</p>
         </div>
-        <div class="col-md-1">
-         
-        </div>
-        <div class="col-md-2 ">
+       
+        <div class="col-md-3">
             <div class="SearchCoin">
                 <p>Search coin</p>
-                <input type="text" id="searchCoinInput" placeholder="Search Coin">
-                <button onclick="searchCoin()">Search</button>
+                
                 <div id="searchResult"></div>
             </div>
         </div>
@@ -142,6 +172,7 @@
         <div class="col-md-1">
             
         </div>
+        
     </div>
 
 
@@ -179,6 +210,7 @@
             
         </div>
         <div class="col-md-6">
+            {{ test }}
             <button class="button-live" data-value="Time">Time(live)</button>
             <button class="button-t" data-value="1m">1m</button>
             <button class="button-t" data-value="3m">3m</button>
@@ -226,6 +258,8 @@
 <script src="{% static 'bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js' %}"></script>
 <!--<script src="{% static 'chart.js' %}"></script>-->
 <script>
+    
+
     const chart = LightweightCharts.createChart(document.getElementById('coinChart'), {
         width: 800,
         height: 400,
@@ -336,6 +370,8 @@
 
                     // Grafiği güncelle
                     updateChart(formatted_data);
+                    //indikatör verilerini güncellemek için sayfayı yenile
+                    location.reload();
             },
             error: function(error) {
                 console.log('Error sending symbol:', error);
@@ -360,14 +396,23 @@
 
                 // Eski verileri temizle
                 $("#searchResult").html('');
+                //filtreleme işlemi
 
                 // data nesnesinin içindeki symbol_names dizisi üzerinde döngü
                 if (Array.isArray(data.symbol)) {
+                    // Butonları içeren bir div oluşturun
+                    var buttonsContainer = $('<div class=".coinSelectorButtonContainer"></div>');
+                
                     data.symbol.forEach(function (entry) {
                         // Her sembol için bir düğme ekleyin
-                        var buttonHtml = '<button onclick="sendSymbol(\'' + entry + '\')">' + entry + '</button>';
-                        $("#searchResult").append(buttonHtml + '<br>');
+                        var buttonHtml = '<button class="coinSelectorButton" onclick="sendSymbol(\'' + entry + '\')">' + entry + '</button>';
+                        
+                        // Düğmeyi buttonsContainer'a ekle
+                        buttonsContainer.append(buttonHtml);
                     });
+                
+                    // buttonsContainer'ı #searchResult içine ekle
+                    $("#searchResult").append(buttonsContainer);
                 }
             },
             error: function(error) {
@@ -375,6 +420,7 @@
             }
         });
     }
+    console.log({{ symbols }})
 </script>
 
 <div id="formattedDataContainer"></div>
