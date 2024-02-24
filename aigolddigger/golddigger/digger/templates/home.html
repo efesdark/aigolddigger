@@ -224,7 +224,7 @@
 <!-- Bootstrap JS and dependencies -->
 <script src="{% static 'bootstrap-5.3.2-dist/js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'chart.js' %}"></script>
+<!--<script src="{% static 'chart.js' %}"></script>-->
 <script>
     const chart = LightweightCharts.createChart(document.getElementById('coinChart'), {
         width: 800,
@@ -306,15 +306,13 @@
             });
         });
 
-        function updateChart(data) {
-            candlestickSeries.setData(data);
-        }
+        
     });
    
-    
-</script>
+    function updateChart(data) {
+        candlestickSeries.setData(data);
+    }
 
-<script>
     // ...
 
     function sendSymbol(symbol) {
@@ -331,6 +329,13 @@
             success: function(response) {
                 console.log('Symbol sent successfully:', response);
                 // Burada gerekirse başka işlemler yapabilirsiniz
+                var formatted_data = response.formatted_data;
+                    console.log("Formatted data:", formatted_data);
+
+                    
+
+                    // Grafiği güncelle
+                    updateChart(formatted_data);
             },
             error: function(error) {
                 console.log('Error sending symbol:', error);

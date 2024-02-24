@@ -5,15 +5,24 @@ import pandas as pd
 import requests
 import json
 from datetime import datetime
+binance_limit = 300
+
+binance = ccxt.binance()
+binance_timeframe= '5m'
+binance_symbol = 'BTC/USDT'
+
 def ajax(request):
     return render(request, 'test/ajax.html')
 
 def test_message(request):
+#def test_message(request, binance_symbol='BTC/USDT'):
+  #Bu değişikliklerle binance_symbol artık send_symbol fonksiyonu içinde tanımlanacak ve test_message fonksiyonuna gönderilecek. 
+  #Eğer send_symbol içinde değer belirtilmezse, varsayılan olarak 'BTC/USDT' kullanılacaktır.
   if request.method == "POST":
     binance_timeframe = request.POST["binance_timeframe"]
-    binance_limit = 300
-    binance_symbol = 'BTC/USDT'
-    binance = ccxt.binance()
+    
+    
+   
     binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
 
     formatted_data = [{
@@ -23,6 +32,7 @@ def test_message(request):
             'low': float(entry[3]),
             'close': float(entry[4]),
             'timeframe': binance_timeframe,
+
         } for entry in binance_data]
 
     return JsonResponse({'formatted_data': formatted_data})
@@ -63,19 +73,28 @@ def searchCoin(request):
 
 def send_symbol(request):
     if request.method == 'POST':
-        symbol = request.POST.get('symbol', None)
-
+    
+    
+        symbol = request.POST.get('symbol', 'BTC/USDT')
+          #Bu değişikliklerle binance_symbol artık send_symbol fonksiyonu içinde tanımlanacak ve test_message fonksiyonuna gönderilecek. 
+          #Eğer send_symbol içinde değer belirtilmezse, varsayılan olarak 'BTC/USDT' kullanılacaktır.
+        
         # Symbol değeri ile istediğiniz işlemleri yapın
         # Örneğin, bu değeri konsolda gösterelim
-        print('Received symbol:', symbol)
+        global binance_symbol
+        binance_symbol = symbol
+        binance_data = binance.fetch_ohlcv(binance_symbol, binance_timeframe, limit=binance_limit)
 
-        # Başarılı bir şekilde işlem yapıldığını belirtelim
-        response_data = {'success': True}
-    else:
-        # Yanlış bir HTTP method kullanıldığında bir hata döndürelim
-        response_data = {'error': 'Invalid request method'}
+        formatted_data = [{
+            'time': entry[0] / 1000,
+            'open': float(entry[1]),
+            'high': float(entry[2]),
+            'low': float(entry[3]),
+            'close': float(entry[4]),
+            'timeframe': binance_timeframe,
+        } for entry in binance_data]
 
-    return JsonResponse(response_data)
+    return JsonResponse({'formatted_data': formatted_data})
   
 def ajax_message(request):
   if request.method == "POST":
