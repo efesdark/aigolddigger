@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'digger',
     'channels',
+    
 ]
 CSRF_COOKIE_SECURE = True  # Sadece HTTPS üzerinden erişilebilir
 CSRF_COOKIE_HTTPONLY = True  # JavaScript tarafından erişilemez

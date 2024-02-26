@@ -10,6 +10,8 @@ binance_limit = 300
 binance = ccxt.binance()
 binance_timeframe= '5m'
 binance_symbol = 'BTC/USDT'
+def channel_test(request):
+    return render(request, 'channel_test.html')
 
 def ajax(request):
     return render(request, 'test/ajax.html')

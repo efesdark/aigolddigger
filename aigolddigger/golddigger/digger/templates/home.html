@@ -10,7 +10,7 @@
     <link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}" type="image/x-icon">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'bootstrap-5.3.2-dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap">
+   
     <title>Golddiger</title>
     
     
@@ -78,6 +78,9 @@
             cursor: pointer;
             border-radius: 5px; /* Kenar yuvarlama */
         }
+        .dark-mode {
+            color: #ffffff;
+        }
 </style>
 </head>
 <body>
@@ -104,6 +107,7 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="#">Info-closable x</a>
+                    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
                 </li>
             </ul>
         </div>
@@ -421,6 +425,44 @@
         });
     }
     console.log({{ symbols }})
+
+
+    function toggleDarkMode() {
+        // Body elemanını seç
+        var body = document.body;
+        
+        // Grafiği içeren div elemanını seç
+        var chartDiv = document.getElementById('coinChart');
+        
+        // Dark mode class'ını toggle et
+        body.classList.toggle('dark-mode');
+        chartDiv.classList.toggle('dark-mode');
+
+        // Dark mode durumuna göre, uygun renkleri ayarla
+        if (body.classList.contains('dark-mode')) {
+            // Dark mode
+            body.style.backgroundColor = '#1a1a1a';
+            chartDiv.style.backgroundColor = '#1a1a1a';
+        } else {
+            // Light mode
+            body.style.backgroundColor = '#ffffff';
+            chartDiv.style.backgroundColor = '#ffffff';
+        }
+        var navbar = document.querySelector('.navbar');
+
+        // Navbar elementinde 'bg-light' ve 'bg-dark' sınıflarını toggle et
+        navbar.classList.toggle('bg-light');
+        navbar.classList.toggle('bg-dark');
+
+        // Navbar elementindeki yazı rengini değiştir
+        if (navbar.classList.contains('bg-light')) {
+            navbar.classList.remove('text-white');
+        } else {
+            navbar.classList.add('text-white');
+        }
+    }
+    
+
 </script>
 
 <div id="formattedDataContainer"></div>

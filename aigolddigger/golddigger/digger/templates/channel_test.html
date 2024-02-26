@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link rel="icon" href="{% static 'favicon/favicon.ico' %}" type="image/x-icon">
+        <link rel="shortcut icon" href="{% static 'favicon/favicon.ico' %}" type="image/x-icon">
+        <title>Channels Test</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+       <p>Channel Test</p>
+    </body>
+    <script>const socket = new WebSocket('ws://localhost:8000/ws/candlestick/');
+
+        socket.onopen = function(event) {
+            console.log('WebSocket is open now.');
+        };
+        
+        socket.onmessage = function(event) {
+            //const data = JSON.parse(event.data);
+           // console.log('Received message:', data.message);
+            // Burada aldığınız verileri işleyebilirsiniz.
+            try {
+                var data = JSON.parse(event.data);
+                console.log('Received message:', data);
+                // Ayrıştırılan veriyi kullanarak gerekli işlemleri yapın
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        };
+        
+        socket.onclose = function(event) {
+            if (event.wasClean) {
+                console.log(`Closed cleanly, code=${event.code}, reason=${event.reason}`);
+            } else {
+                console.error('Connection died');
+            }
+        };
+        
+        socket.onerror = function(error) {
+            console.error(`Error: ${error.message}`);
+        };
+        </script>
+</html>
