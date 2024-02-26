@@ -215,7 +215,7 @@
         </div>
         <div class="col-md-6">
             {{ test }}
-            <button class="button-live" data-value="Time">Time(live)</button>
+            <button class="button-live" id="toggleLiveModeButton"data-value="Time">Time(live)</button>
             <button class="button-t" data-value="1m">1m</button>
             <button class="button-t" data-value="3m">3m</button>
             <button class="button-t" data-value="5m">5m</button>
@@ -464,7 +464,82 @@
     
 
 </script>
+<script>
+    const socket = new WebSocket('ws://localhost:8000/ws/candlestick/');
+    // Bağlantı başarılı olduğunda
+    //canlı grafik modu kontrolü
+    // Değişkeni tanımla, başlangıçta false olarak ayarla
+    let isLiveMode = false;
 
+    // liveMode fonksiyonunu tanımla
+    function liveMode() {
+    // Değişkenin değerini toggle et
+    isLiveMode = !isLiveMode;
+
+    // Duruma göre gerekli işlemleri yap
+    if (isLiveMode) {
+        // Live mode açık ise yapılacak işlemler
+        console.log('Live mode is ON');
+        // Buraya canlı modun aktif olduğu durumda yapılacak işlemleri ekleyebilirsiniz
+    } else {
+        // Live mode kapalı ise yapılacak işlemler
+        console.log('Live mode is OFF');
+        // Buraya canlı modun kapalı olduğu durumda yapılacak işlemleri ekleyebilirsiniz
+    }
+    }
+
+
+// HTML üzerindeki butona click eventi ekle ve liveMode fonksiyonunu çağır
+document.getElementById('toggleLiveModeButton').addEventListener('click', liveMode);
+    socket.onopen = function (event) {
+        console.log('WebSocket is open now.');
+        };
+        
+        
+        
+        // Mesaj alındığında
+        socket.onmessage = function (event) {
+            // Gelen veriyi işleme
+            const data = JSON.parse(event.data);
+            console.log('Received message:', data);
+            // Grafiği güncelleme fonksiyonunu çağırma
+            if(isLiveMode==1)
+            {
+            
+                
+
+
+
+                
+            updateChartLive(data);
+            }
+        };
+        
+        // Hata durumunda
+        socket.onerror = function (error) {
+            console.error('WebSocket error:', error);
+        };
+        
+        // Bağlantı kapandığında
+        socket.onclose = function (event) {
+            console.log('WebSocket closed:', event);
+        };
+            
+        function updateChartLive(data) {
+            // Veriyi grafik için uygun formata dönüştürme
+            const newData = {
+                time: data.timestamp,
+                open: data.open,
+                high: data.high,
+                low: data.low,
+                close: data.close,
+            };
+            console.log("Graphic updated");
+            // Yeni mum verisini grafiğe ekleyin
+            candlestickSeries.update(newData);
+        }
+        
+</script>
 <div id="formattedDataContainer"></div>
 </body>
 </html>

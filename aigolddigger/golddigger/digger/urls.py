@@ -1,6 +1,7 @@
 # myapp/urls.py
 from django.urls import path
-from .views import home, get_bitcoin_price, chart, charts,test,candles,update_chart,your_view_name,test_message,ajax,ajax_message,searchCoin,send_symbol,channel_test
+from .views import home, get_bitcoin_price, chart, charts,test,candles,update_chart
+from .views import your_view_name,test_message,ajax,ajax_message,searchCoin,send_symbol,channel_test,generate_candlestick_data
 from . import consumers
 
 urlpatterns = [
@@ -18,6 +19,7 @@ urlpatterns = [
     path("test-message/", test_message, name="test_message"),
     path("search-coin/", searchCoin, name="search_coin"),
     path("send-symbol/", send_symbol, name="send_symbol"),
+    path('generate_candlestick_data/', generate_candlestick_data, name='generate_candlestick_data'),
    
 ]
 

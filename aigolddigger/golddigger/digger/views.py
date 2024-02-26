@@ -5,6 +5,8 @@ import pandas as pd
 import requests
 import json
 from datetime import datetime
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 binance_limit = 300
 
 binance = ccxt.binance()
@@ -12,6 +14,29 @@ binance_timeframe= '5m'
 binance_symbol = 'BTC/USDT'
 def channel_test(request):
     return render(request, 'channel_test.html')
+
+def send_candlestick_data(request):
+    channel_layer = get_channel_layer()
+
+    # Test verisi, gerçek zamanlı veri akışını burada uygularsınız
+    data = {
+        'timestamp': 1646102400,
+        'open': 40000,
+        'high': 42000,
+        'low': 39000,
+        'close': 41000,
+    }
+
+    # Consumer'a mesaj gönder
+    async_to_sync(channel_layer.group_send)(
+        'candlestick_group',
+        {
+            'type': 'send.candlestick.data',
+            'data': data,
+        }
+    )
+
+    return JsonResponse({'success': True})
 
 def ajax(request):
     return render(request, 'test/ajax.html')
@@ -103,9 +128,31 @@ def ajax_message(request):
   if request.method == "POST":
     message = request.POST["message"]
     return JsonResponse({"message": message})
-  
+def generate_candlestick_data(request):
+    # Burada gerçekleştirilen işlemlerle birlikte
+    # candlestick verisini oluşturun
+    candlestick_data = {
+        'timestamp': '2022-01-01T12:00:00',
+        'open': 100,
+        'high': 120,
+        'low': 90,
+        'close': 110,
+    }
+
+    # Oluşturulan veriyi consumer'a göndermek için channel_layer kullanın
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        'candlestick_group',  # Consumer'lar aynı gruptaysa
+        {
+            'type': 'send.candlestick_data',
+            'data': candlestick_data,
+        }
+    )
+
+    return render(request, 'home.html')
 def home(request):
  #esential
+    #socket test
     
     global binance_symbol
     global binance_timeframe 
